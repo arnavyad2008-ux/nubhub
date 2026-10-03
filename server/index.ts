@@ -720,6 +720,11 @@ if (fs.existsSync(DIST_PATH)) {
 }
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`[NubHub Server] Production API & WebSocket engine running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`[NubHub Server] Production API & WebSocket engine running on port ${PORT}`);
+  });
+}
+
+export { app, server };
+export default app;

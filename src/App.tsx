@@ -20,6 +20,7 @@ import { GoogleIntelligenceModal } from './components/GoogleIntelligenceModal';
 import { QRCodeModal } from './components/QRCodeModal';
 import { ZeroState } from './components/ZeroState';
 import { BusinessCardSkeleton } from './components/LoadingSkeleton';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 
 const CATEGORIES = [
   'All',
@@ -106,9 +107,27 @@ function MainApp() {
     socket.on('business:created', handleBusinessCreated);
     socket.on('business:updated', handleBusinessUpdated);
 
+    // Supabase Realtime integration
+    let supabaseChannel: any = null;
+    if (isSupabaseConfigured) {
+      supabaseChannel = supabase
+        .channel('public:businesses')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'businesses' }, (payload: any) => {
+          if (payload.eventType === 'INSERT' && payload.new) {
+            handleBusinessCreated(payload.new as Business);
+          } else if (payload.eventType === 'UPDATE' && payload.new) {
+            handleBusinessUpdated(payload.new as Business);
+          }
+        })
+        .subscribe();
+    }
+
     return () => {
       socket.off('business:created', handleBusinessCreated);
       socket.off('business:updated', handleBusinessUpdated);
+      if (supabaseChannel) {
+        supabase.removeChannel(supabaseChannel);
+      }
     };
   }, []);
 

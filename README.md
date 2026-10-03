@@ -124,3 +124,46 @@ Visit: [http://localhost:5173](http://localhost:5173) (automatically proxies to 
 ```bash
 npx tsx test_e2e.ts
 ```
+
+---
+
+## 📱 Real-Time QR Code Storefront Kit
+Every business registered in NubHub receives its own custom QR Code:
+- **Instant Deep-Link**: Scannable QR code encodes `https://<domain>/?biz=<business_id>&action=review`.
+- **Instant Review Trigger**: Customers scanning the QR code on tables or counters immediately open the Multi-Criteria Review modal for that exact business.
+- **Tabletop Flyer & High-Res PNG Download**: Merchants can download a 1024x1024 PNG or print a branded counter display flyer directly from their dashboard.
+
+---
+
+## ⚡ Cloud Deployment: Vercel & Supabase
+
+### 1. Supabase PostgreSQL & Realtime Setup
+1. Log in to [Supabase](https://supabase.com/dashboard) and create or select your project.
+2. Navigate to the **SQL Editor** tab: `https://supabase.com/dashboard/project/<project-id>/sql`.
+3. Open [`supabase/schema.sql`](file:///C:/Users/Arnav%20Yadav/.gemini/antigravity/scratch/nubhub/supabase/schema.sql), copy its contents, and click **Run**.
+4. This creates:
+   - `businesses` table with JSONB socials and category indices
+   - `reviews` table with 1–5 star checks and cascading foreign keys
+   - `audit_logs`, `security_rules`, `sessions`, and `otp_requests` tables
+   - Row Level Security (RLS) policies
+   - Active `supabase_realtime` publication for instant cross-client updates.
+
+### 2. Vercel Deployment
+NubHub is configured for zero-config Vercel deployment via [`vercel.json`](file:///C:/Users/Arnav%20Yadav/.gemini/antigravity/scratch/nubhub/vercel.json) and [`api/index.ts`](file:///C:/Users/Arnav%20Yadav/.gemini/antigravity/scratch/nubhub/api/index.ts).
+
+#### Option A: 1-Click Git Import (Recommended)
+1. Go to [Vercel New Project](https://vercel.com/new).
+2. Import the GitHub repository: `https://github.com/arnavyad2008-ux/nubhub`.
+3. Under **Environment Variables**, add:
+   - `GEMINI_API_KEY`: Your Gemini API key
+   - `VITE_SUPABASE_URL`: `https://<project-id>.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY`: Your Supabase anon public key
+4. Click **Deploy**!
+
+#### Option B: Deploy via Vercel CLI
+```bash
+npx vercel
+# Follow prompts to link project, or run for production:
+npx vercel --prod
+```
+
